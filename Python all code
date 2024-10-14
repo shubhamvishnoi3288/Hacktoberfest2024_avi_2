@@ -1,0 +1,16 @@
+dataset-comparator/
+├── README.md
+├── requirements.txt
+├── comparator.py
+└── datasets/
+    ├── dataset1.csv
+    └── dataset2.csv
+
+
+
+pip install -r requirements.txt
+
+
+python comparator.py path/to/dataset1 path/to/dataset2 --format output_format
+
+pandas
