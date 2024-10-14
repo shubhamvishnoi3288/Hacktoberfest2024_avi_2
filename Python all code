@@ -14,3 +14,78 @@ pip install -r requirements.txt
 python comparator.py path/to/dataset1 path/to/dataset2 --format output_format
 
 pandas
+
+
+------------------------Code Segment-------------------------
+
+import pandas as pd
+import argparse
+import os
+
+def load_dataset(file_path):
+    """Load a dataset from a CSV file."""
+    if not os.path.isfile(file_path):
+        raise FileNotFoundError(f"The file {file_path} does not exist.")
+    return pd.read_csv(file_path)
+
+def compare_datasets(df1, df2):
+    """Compare two DataFrames and return differences."""
+    added = df2[~df2.isin(df1)].dropna()
+    removed = df1[~df1.isin(df2)].dropna()
+    modified = df1[df1.isin(df2)].dropna()
+
+    return added, removed, modified
+
+def output_differences(added, removed, modified, output_format):
+    """Output differences in the specified format."""
+    if output_format == 'text':
+        print("Added:\n", added)
+        print("\nRemoved:\n", removed)
+        print("\nModified:\n", modified)
+    elif output_format == 'csv':
+        added.to_csv('added.csv', index=False)
+        removed.to_csv('removed.csv', index=False)
+        modified.to_csv('modified.csv', index=False)
+        print("Differences saved to added.csv, removed.csv, and modified.csv.")
+    elif output_format == 'json':
+        added.to_json('added.json', orient='records', lines=True)
+        removed.to_json('removed.json', orient='records', lines=True)
+        modified.to_json('modified.json', orient='records', lines=True)
+        print("Differences saved to added.json, removed.json, and modified.json.")
+    else:
+        print("Unsupported output format.")
+
+def main():
+    parser = argparse.ArgumentParser(description='Compare two CSV datasets.')
+    parser.add_argument('dataset1', help='Path to the first dataset (CSV file).')
+    parser.add_argument('dataset2', help='Path to the second dataset (CSV file).')
+    parser.add_argument('--format', choices=['text', 'csv', 'json'], default='text', 
+                        help='Output format for differences (default: text).')
+
+    args = parser.parse_args()
+
+    df1 = load_dataset(args.dataset1)
+    df2 = load_dataset(args.dataset2)
+
+    added, removed, modified = compare_datasets(df1, df2)
+    output_differences(added, removed, modified, args.format)
+
+if __name__ == '__main__':
+    main()
+
+
+
+output :
+dataset1 :
+id,name,age
+1,John,30
+2,Alice,25
+3,Bob,22
+
+dattaset2 :
+id,name,age
+1,John,30
+2,Alice,26
+4,Charlie,28
+
+
